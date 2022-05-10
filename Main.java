@@ -111,5 +111,9 @@ public class Main {
 	
 	public static void about() {
 		// TODO insert information about authors
+		System.out.println("211RDB218 Roberts Simanis");
+		System.out.println("211RDC003 Annija Tkacenko");
+		System.out.println("211RDC017 Diana Marta Rence");
+		System.out.println("211RDC010 Aksels Jaunzemis");
 	}
 }
