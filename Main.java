@@ -1,8 +1,15 @@
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.HashMap;
+import java.util.Map;
+import java.io.FileWriter;
 
 
 public class Main {
@@ -56,7 +63,51 @@ public class Main {
 	}
 
 	public static void comp(String sourceFile, String resultFile) {
-		// TODO: implement this method
+		int inchar, size=256;
+		char ch;
+		Map<String, Integer> table = new HashMap<>();
+		BufferedReader in;
+		//PrintWriter out;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dost = new DataOutputStream(baos);
+		String add;
+		for(int i=0;i<size;i++) {
+			table.put(String.valueOf((char) i), i);
+		}
+		String found = "";
+		try {
+			in = new BufferedReader(new FileReader(sourceFile));
+			//out = new PrintWriter(new FileWriter(resultFile));
+			while((inchar = in.read())!=-1) {
+				ch = (char) inchar;
+				//System.out.println("Current char: " + ch + " - " + count);
+				add=found+ch;
+				if(table.containsKey(add)) {
+					found = add;
+				} else {
+					//out.write(table.get(found) + ",");
+					if(table.get(found)!=null) {
+						dost.writeInt(table.get(found));
+					}
+					found=String.valueOf(ch);
+					table.put(add, size++);
+				}
+			}
+
+			if(!found.equals("")) {
+				//out.write((int) table.get(found) + ",");
+				dost.writeInt(table.get(found));
+			}
+			FileOutputStream file = new FileOutputStream(resultFile);
+			baos.writeTo(file);
+			file.close();
+			//out.close();
+			in.close();
+			System.out.println("encoded");
+		} catch (IOException e) {
+			System.out.println(e.getMessage());
+			return;
+		}
 	}
 
 	public static void decomp(String sourceFile, String resultFile) {
