@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -63,11 +65,11 @@ public class Main {
 	}
 
 	public static void comp(String sourceFile, String resultFile) {
+		System.out.println("encoding...");
 		int inchar, size=256;
 		char ch;
 		Map<String, Integer> table = new HashMap<>();
 		BufferedReader in;
-		//PrintWriter out;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dost = new DataOutputStream(baos);
 		String add;
@@ -77,15 +79,12 @@ public class Main {
 		String found = "";
 		try {
 			in = new BufferedReader(new FileReader(sourceFile));
-			//out = new PrintWriter(new FileWriter(resultFile));
 			while((inchar = in.read())!=-1) {
 				ch = (char) inchar;
-				//System.out.println("Current char: " + ch + " - " + count);
 				add=found+ch;
 				if(table.containsKey(add)) {
 					found = add;
 				} else {
-					//out.write(table.get(found) + ",");
 					if(table.get(found)!=null) {
 						dost.writeInt(table.get(found));
 					}
@@ -95,13 +94,11 @@ public class Main {
 			}
 
 			if(!found.equals("")) {
-				//out.write((int) table.get(found) + ",");
 				dost.writeInt(table.get(found));
 			}
 			FileOutputStream file = new FileOutputStream(resultFile);
 			baos.writeTo(file);
 			file.close();
-			//out.close();
 			in.close();
 			System.out.println("encoded");
 		} catch (IOException e) {
@@ -111,7 +108,41 @@ public class Main {
 	}
 
 	public static void decomp(String sourceFile, String resultFile) {
-		// TODO: implement this method
+		System.out.println("decoding...");
+		Map<Integer, String> table = new HashMap<>();
+		int size = 256, current;
+		String chars, rescur;
+		PrintWriter out;
+		for(int i=0;i<size;i++) {
+			table.put(i, String.valueOf((char) i));
+		}
+		try {
+			DataInputStream in = new DataInputStream(new FileInputStream(sourceFile));
+			out = new PrintWriter(new FileWriter(resultFile));
+			try {
+				chars = String.valueOf((char) in.readInt());
+				out.write(chars);
+				while(true) {
+					current=in.readInt();
+					if(table.containsKey(current)) {
+						rescur=table.get(current);
+					} else {
+						rescur=chars+chars.charAt(0);
+					}
+					out.write(rescur);
+					table.put(size++, chars + rescur.charAt(0));
+					chars=rescur;
+				}
+			} catch(EOFException e) {
+				System.out.println("decoded");
+				in.close();
+				out.close();
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			return;
+		}
+
 	}
 	
 	public static void size(String sourceFile) {
@@ -161,7 +192,6 @@ public class Main {
 	}
 	
 	public static void about() {
-		// TODO insert information about authors
 		System.out.println("211RDB218 Roberts Simanis");
 		System.out.println("211RDC003 Annija Tkacenko");
 		System.out.println("211RDC017 Diana Marta Rence");
